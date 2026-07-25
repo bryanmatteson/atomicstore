@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Go ${{ matrix.go }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ["1.24.x"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: true
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Verify go.mod tidy
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+
+      - name: Format
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "gofmt needed on:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Staticcheck
+        uses: dominikh/staticcheck-action@v1
+        with:
+          version: "2025.1.1"
+          install-go: false
+
+      - name: Test
+        run: go test ./... -count=1
+
+      - name: Race
+        run: go test ./... -race -count=1
+
+      - name: Lock stress
+        run: >
+          go test ./store
+          -run 'TestFileStorageDistributedLock(Conformance|SubprocessConformance)$'
+          -count=10
+          -timeout 20m
+
+      - name: Vuln check
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
