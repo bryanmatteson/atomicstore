@@ -1,16 +1,13 @@
-# conditional-store
+<p align="center"><img src="docs/assets/icon.svg" width="112" alt="Atomicstore icon"></p>
+<h1 align="center">Atomicstore</h1>
+<p align="center"><strong>Typed objects. Conditional writes. Leases that survive contention.</strong></p>
 
 [![CI](https://github.com/bryanmatteson/atomicstore/actions/workflows/ci.yml/badge.svg)](https://github.com/bryanmatteson/atomicstore/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-`conditional-store` is a typed Go object store with explicit concurrency
-contracts. It provides:
-
-- typed entities and pluggable codecs;
-- conditional single-key operations using ETags;
-- local filesystem and S3 backends;
-- capability-gated atomic batches; and
-- renewable distributed leases with monotonic fencing tokens.
+`atomicstore` stores typed Go objects on local files or S3. Read with
+pluggable codecs, save with ETags, and coordinate workers with renewable
+leases and monotonic fencing tokens.
 
 Multi-key commits and lock acquisition are capability-gated. A backend that
 does not declare the required contract is rejected before mutation.
@@ -18,6 +15,27 @@ does not declare the required contract is rejected before mutation.
 ```sh
 go get github.com/bryanmatteson/atomicstore/store
 ```
+
+<p align="center"><img src="docs/assets/demo.gif" width="1000" alt="Atomicstore creates a typed object, rejects a stale write, guards an unsupported batch, and hands a lease to a new worker with a higher fencing token"></p>
+
+Two readers load the same object. The first saves; the second gets a conflict
+and reloads the winner. A filesystem batch is rejected before writing, and
+contending workers exchange a lease with increasing fencing tokens. The
+[runnable example](examples/readme/main.go) checks each outcome on real
+filesystem storage; the [recorder](scripts/record-readme-demo.py) captures it.
+
+## Objects with clear concurrency contracts
+
+| Capability | What you get |
+| --- | --- |
+| 🧩 Typed entities | Generic stores and mutable objects with explicit load, save, reload, metadata, and conditional creation |
+| 🔒 Optimistic updates | ETags travel with loaded objects; a stale save reports a conflict instead of losing another writer's changes |
+| 📁 Files and S3 | The same storage interface over local files, AWS S3, or a backend registered by URI scheme |
+| 📦 Pluggable codecs | JSON, YAML, TOML, XML, CSV, CBOR, MessagePack, and Gob; codec-specific options and content types |
+| 🌊 Streams and metadata | Stream reads and writes, head requests, listing, key prefixes, and operation options |
+| ⚛️ Capability-aware batches | Stage conditions and writes together; require a backend's atomic-batch capability for an all-or-nothing multi-key commit |
+| 🔑 Renewable leases | Try-acquire, wait, renew, release, or run a callback with automatic renewal and cancellation on lease loss |
+| 🔭 Operational hooks | Stable error codes, retry policies, timeouts, metrics, tracing, and logging interfaces |
 
 ## Typed storage
 

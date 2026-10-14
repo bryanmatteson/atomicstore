@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Atomicstore: a locked stack of objects">
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#102d3b"/><stop offset="1" stop-color="#137d81"/></linearGradient><linearGradient id="stack" x2="0" y2="1"><stop stop-color="#b7f5dc"/><stop offset="1" stop-color="#57d5c0"/></linearGradient></defs>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+  <g fill="none" stroke="url(#stack)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="m47 97 81-41 81 41-81 41Z"/><path d="m47 128 81 41 81-41M47 159l81 41 81-41"/></g>
+  <rect x="143" y="145" width="63" height="55" rx="12" fill="#102d3b" stroke="#effff6" stroke-width="5"/>
+  <path d="M157 145v-16a18 18 0 0 1 36 0v16" fill="none" stroke="#effff6" stroke-width="7"/><circle cx="175" cy="168" r="5" fill="#b7f5dc"/><path d="M175 173v9" stroke="#b7f5dc" stroke-width="5"/>
+</svg>
